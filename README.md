@@ -5,6 +5,7 @@ CLI program that simulates a coin flip.
 If you ever have a hard time making a decision, don't
 fret no more! Let the universe decide for you.
 
+[![Go](https://github.com/MawKKe/coinflip-go/actions/workflows/go.yml/badge.svg)](https://github.com/MawKKe/coinflip-go/actions/workflows/go.yml)
 
 ## Install
 
