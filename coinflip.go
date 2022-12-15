@@ -17,42 +17,70 @@ package main
 
 import (
 	"crypto/rand"
-	"flag"
 	"fmt"
 	"math/big"
+	"os"
 )
 
 // genRandomBit generates random integer with value 0 or 1.
-func genRandomBit() int {
+func genRandomUpto(lim int) (int, error) {
 	// Our fate shall be decided by true randomness,
 	// not some silly pseudo-random number generator.
-	i, err := rand.Int(rand.Reader, big.NewInt(2))
+	i, err := rand.Int(rand.Reader, big.NewInt(int64(lim)))
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
-	return int(i.Int64() % 2)
+	return int(i.Int64()), nil
 }
 
-// bitToString returns string representation for 'bit'.
-// the argument 'bit' should be either 0 or 1. If it is not, then
-// the modulo of the value is used.
-func bitToString(bit int, yesno bool) string {
-	if yesno {
-		return []string{"no", "yes"}[bit%2]
-	} else {
-		return []string{"tails", "heads"}[bit%2]
+func choose(choices []string, gen func(int) (int, error)) (string, error) {
+	if len(choices) < 2 {
+		return "", fmt.Errorf("expected at least 2 arguments to choose(), got %d", len(choices))
 	}
+	i, err := gen(len(choices))
+	if err != nil {
+		return "", fmt.Errorf("problem generating random number: %w", err)
+	}
+	return choices[i], nil
+}
+
+func pickRandomly(choices []string) (string, error) {
+	return choose(choices, genRandomUpto)
+}
+
+func printUsage(ec int) {
+	fmt.Printf("Usage: %v coinflip|yesno|choose\n", os.Args[0])
+	os.Exit(ec)
 }
 
 func main() {
-	var yesno bool
-	flag.BoolVar(&yesno, "yesno", false, "Result is yes|no instead of heads|tails")
+	if len(os.Args) < 2 {
+		fmt.Printf("error: not enough arguments\n\n")
+		printUsage(1)
+	}
+	cmd, args := os.Args[1], os.Args[2:]
 
-	flag.Parse()
+	if cmd == "help" {
+		printUsage(0)
+	}
 
-	bit := genRandomBit()
+	res, err := func(cmd string, extraArgs []string) (string, error) {
+		switch cmd {
+		case "coinflip":
+			return pickRandomly([]string{"tails", "heads"})
+		case "yesno":
+			return pickRandomly([]string{"no", "yes"})
+		case "choose":
+			return pickRandomly(extraArgs)
+		default:
+			return "", fmt.Errorf("unknown subcommand '%v'", cmd)
+		}
+	}(cmd, args)
 
-	answer := bitToString(bit, yesno)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		os.Exit(1)
+	}
 
-	fmt.Println(answer)
+	fmt.Println(res)
 }

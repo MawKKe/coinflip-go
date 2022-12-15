@@ -4,59 +4,36 @@ import (
 	"testing"
 )
 
-func TestBitToString(t *testing.T) {
-	type testData struct {
-		bit    int
-		yesno  bool
-		expect string
-	}
-	data := []testData{
-		testData{
-			bit:    0,
-			yesno:  false,
-			expect: "tails",
-		},
-		testData{
-			bit:    1,
-			yesno:  false,
-			expect: "heads",
-		},
-		testData{
-			bit:    2,
-			yesno:  false,
-			expect: "tails",
-		},
-		testData{
-			bit:    3,
-			yesno:  false,
-			expect: "heads",
-		},
-		testData{
-			bit:    0,
-			yesno:  true,
-			expect: "no",
-		},
-		testData{
-			bit:    1,
-			yesno:  true,
-			expect: "yes",
-		},
-		testData{
-			bit:    2,
-			yesno:  true,
-			expect: "no",
-		},
-		testData{
-			bit:    3,
-			yesno:  true,
-			expect: "yes",
-		},
-	}
-	for _, elem := range data {
-		res := bitToString(elem.bit, elem.yesno)
-		if res != elem.expect {
-			t.Fatalf("bitToString(%d, %t) = %q, expected %q",
-				elem.bit, elem.yesno, res, elem.expect)
+func TestChoose(t *testing.T) {
+	always0 := func(int) (int, error) { return 0, nil }
+	always1 := func(int) (int, error) { return 1, nil }
+	data := []string{"A", "B"}
+	t.Run("always get A", func(t *testing.T) {
+		res, err := choose(data, always0)
+		if err != nil {
+			t.Fatalf("Expected no error, got: %v", err)
 		}
-	}
+		if res != "A" {
+			t.Fatalf("Expected %q, got %q", "A", res)
+		}
+	})
+	t.Run("always get B", func(t *testing.T) {
+		res, err := choose(data, always1)
+		if err != nil {
+			t.Fatalf("Expected no error, got: %v", err)
+		}
+		if res != "B" {
+			t.Fatalf("Expected %q, got %q", "B", res)
+		}
+	})
+	t.Run("Not enough choices", func(t *testing.T) {
+		_, err := choose([]string{}, always0)
+		if err == nil {
+			t.Fatalf("Expected error, got: %v", err)
+		}
+		_, err = choose([]string{"only one"}, always0)
+		if err == nil {
+			t.Fatalf("Expected error, got: %v", err)
+		}
+	})
 }

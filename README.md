@@ -13,18 +13,28 @@ fret no more! Let the universe decide for you.
 
 ## Usage
 
-To flip a coin, run:
+View help:
 
-    $ coinflip-go
+    $ coinflip-go help
+
+To flip a coin and get either "heads" or "tails", run:
+
+    $ coinflip-go coinflip
     heads
 
-or if you want result as either "yes" or "no":
+...or if you want result as either "yes" or "no":
 
-    $ coinflip-go -yesno
+    $ coinflip-go yesno
     no
 
-Note: this assumes that `$GOPATH/bin` is included in your shell's `$PATH`
+...or if you want to pick among choices (e.g number 1-5):
 
+    $ coinflip-go choose 1 2 3 4 5
+    4
+
+
+Note: if you installed the binary with `go install`, make sure `$GOPATH/bin`
+is included in your shell's `$PATH`
 
 ## License
 
